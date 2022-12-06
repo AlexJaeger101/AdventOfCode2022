@@ -9,6 +9,7 @@ int ChallengePart2();
 
 std::string FindCommonChar(std::string a, std::string b);
 std::string FindCommonChar(std::string a, std::string b, std::string c);
+int CharToInt(char c);
 
 int main()
 {
@@ -23,36 +24,6 @@ int main()
 
 int ChallengePart1()
 {
-	std::map<char, int> charValue = {
-		{'a', 1},
-		{'b', 2},
-		{'c', 3},
-		{'d', 4},
-		{'e', 5},
-		{'f', 6},
-		{'g', 7},
-		{'h', 8},
-		{'i', 9},
-		{'j', 10},
-		{'k', 11},
-		{'l', 12},
-		{'m', 13},
-		{'n', 14},
-		{'o', 15},
-		{'p', 16},
-		{'q', 17},
-		{'r', 18},
-		{'s', 19},
-		{'t', 20},
-		{'u', 21},
-		{'v', 22},
-		{'w', 23},
-		{'x', 24},
-		{'y', 25},
-		{'z', 26},
-
-	};
-
 	std::fstream adventInputFile;
 	int prioritySum = 0;
 
@@ -72,7 +43,7 @@ int ChallengePart1()
 				commonChar[0] = commonChar[0] + 32; //Convert to lower
 			}
 
-			prioritySum += charValue[commonChar[0]];
+			prioritySum += CharToInt(commonChar[0]);
 			
 		}
 
@@ -88,35 +59,6 @@ int ChallengePart1()
 
 int ChallengePart2()
 {
-	std::map<char, int> charValue = {
-	{'a', 1},
-	{'b', 2},
-	{'c', 3},
-	{'d', 4},
-	{'e', 5},
-	{'f', 6},
-	{'g', 7},
-	{'h', 8},
-	{'i', 9},
-	{'j', 10},
-	{'k', 11},
-	{'l', 12},
-	{'m', 13},
-	{'n', 14},
-	{'o', 15},
-	{'p', 16},
-	{'q', 17},
-	{'r', 18},
-	{'s', 19},
-	{'t', 20},
-	{'u', 21},
-	{'v', 22},
-	{'w', 23},
-	{'x', 24},
-	{'y', 25},
-	{'z', 26},
-	};
-
 	std::fstream adventInputFile;
 	int prioritySum = 0;
 
@@ -149,7 +91,7 @@ int ChallengePart2()
 					commonChar[0] = commonChar[0] + 32; //Convert to lower
 				}
 
-				prioritySum += charValue[commonChar[0]];
+				prioritySum += CharToInt(commonChar[0]);
 
 				rugsack1 = "";
 				rugsack2 = "";
@@ -201,4 +143,11 @@ std::string FindCommonChar(std::string a, std::string b, std::string c)
 	currentIntersection = "";
 
 	return lastIntersection;
+}
+
+int CharToInt(char c)
+{
+	// Bit Shift by 31 to get proper value
+	// value == position in the alphebet
+	return (c & 31);
 }
