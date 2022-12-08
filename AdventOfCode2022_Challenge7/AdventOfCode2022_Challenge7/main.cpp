@@ -9,12 +9,14 @@
 int main()
 {
 	std::vector<std::string> filePathVec;
-	std::vector<std::string> fileVec;
 
 	std::fstream adventInputFile;
 	adventInputFile.open("AdventInput.txt");
 	if (adventInputFile.is_open())
 	{
+		std::string filePath;
+
+		//Create vector of all files (with filepath as name)
 		std::string textLine;
 		while (std::getline(adventInputFile, textLine))
 		{
@@ -23,29 +25,22 @@ int main()
 			{
 				if (textLine == "$ cd /") //very top of directory
 				{
-					filePathVec.clear();
-					filePathVec.push_back("/");
+					filePath = "/";
 				}
 				else if (textLine == "$ cd ..") //go back one
 				{
-					filePathVec.pop_back();
+					int removeLocation = filePath.find_last_of('/');
+					filePath = filePath.substr(0, removeLocation);
 				}
 				else if (textLine.find("$ cd ") == 0) //got down one
 				{
-					filePathVec.push_back(textLine.substr(5) + "/");
+					filePath = filePath + textLine.substr(5) + "/";
 				}
 				else
 				{
 					int space = textLine.find(' ');
-					std::string filename = "";
-					for (auto current : filePathVec)
-					{
-						filename += current;
-					}
-
-					filename += textLine.substr(space + 1) + " " + textLine.substr(0, space);
-					fileVec.push_back(filename);
-
+					std::string fileToAdd = filePath + textLine.substr(space + 1) + " " + textLine.substr(0, space);
+					filePathVec.push_back(fileToAdd);
 				}
 			}
 		}
@@ -58,22 +53,24 @@ int main()
 		return 0;
 	}
 
-	std::map<std::string, int> fileSize;
-	for (auto file : fileVec)
+	//create map of files
+	//basically a lookup table of filenames to sizes
+	std::map<std::string, int> fileMap;
+	for (auto file : filePathVec)
 	{
 		int size = std::stoi(file.substr(file.find(' ')));
-		std::string dir = file;
-		while (dir.size() > 0)
+		std::string currentFilePath = file;
+		while (currentFilePath.size() > 0)
 		{
-			int i = dir.find_last_of('/');
-			std::string sub = dir.substr(0, i);
-			fileSize[sub] += size;
-			dir = sub;
+			std::string fileName = currentFilePath.substr(0, currentFilePath.find_last_of('/'));
+			fileMap[fileName] += size;
+			currentFilePath = fileName;
 		}
 	}
 
+	//Part 1 answer: sum of all file size under 100000
 	int result = 0;
-	for (auto size : fileSize)
+	for (auto size : fileMap)
 	{
 		if (size.second < 100000)
 		{
@@ -81,20 +78,20 @@ int main()
 		}
 	}
 
-	std::cout << result << std::endl;
+	std::cout << "Solution 1: " << result << std::endl;
 
-	int free = 70000000 - fileSize[""];
-	int needed = 30000000 - free;
-	int toDelete = 30000000;
-	for (auto size : fileSize)
+	//Part 2 answer: find size of smallest directory that can free upp enough space
+	result = 30000000;
+	int avalialbeSpace = 70000000 - fileMap[""];
+	for (auto size : fileMap)
 	{
-		if (size.second > needed && size.second < toDelete)
+		if (size.second > (30000000 - avalialbeSpace) && size.second < result)
 		{
-			toDelete = size.second;
+			result = size.second;
 		}
 	}
 
-	std::cout << toDelete;
+	std::cout << "Solution 2: " << result;
 
 	return 0;
 }
