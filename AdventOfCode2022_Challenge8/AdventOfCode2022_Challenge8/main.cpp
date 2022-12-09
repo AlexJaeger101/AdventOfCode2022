@@ -36,19 +36,19 @@ int main()
 		std::cout << "ERROR: File failed to open\n";
 	}
 
-	//Print Grid
+	//Go through entire grid and check how many trees are visible from the edges
 	for (int x = 0; x < row; ++x)
 	{
 		for (int y = 0; y < col; ++y)
 		{
-			int visibleDir = 0;
+			int visibleDir = 4;
 
 			// Check Right
 			for (int offset = 0; offset < x; ++offset)
 			{
 				if (treeGrid[y][offset] >= treeGrid[y][x])
 				{
-					++visibleDir;
+					--visibleDir;
 					break;
 				}
 			}
@@ -58,7 +58,7 @@ int main()
 			{
 				if (treeGrid[y][offset] >= treeGrid[y][x])
 				{
-					++visibleDir;
+					--visibleDir;
 					break;
 				}
 			}
@@ -68,7 +68,8 @@ int main()
 			{
 				if (treeGrid[offset][x] >= treeGrid[y][x])
 				{
-					++visibleDir;
+					--visibleDir;
+					break;
 				}
 			}
 
@@ -77,22 +78,86 @@ int main()
 			{
 				if (treeGrid[offset][x] >= treeGrid[y][x])
 				{
-					++visibleDir;
+					--visibleDir;
+					break;
 				}
 			}
 
 
-			if (visibleDir > 0)
-			{
-				visibleTrees += visibleDir;
-			}
+			visibleTrees += visibleDir > 0;
 
 		}
-
-		std::cout << std::endl;
 	}
 
-	std::cout << visibleTrees << std::endl;
+	std::cout << "Solution 1: " << visibleTrees << std::endl;
+
+
+	//Go through grid and find the tree with the highest viewing distance
+	int viewDist = 0;
+	for (int x = 0; x < row; ++x) 
+	{
+		for (int y = 0; y < col; ++y) 
+		{
+			int totalDist = 1;
+			int currentDist = 0;
+
+			//Check Left
+			for (int offset = x - 1; offset >= 0; --offset)
+			{ 
+				currentDist += 1;
+				if (treeGrid[y][offset] >= treeGrid[y][x])
+				{
+					break;
+				}
+			} 
+			totalDist *= currentDist;
+			currentDist = 0;
+			
+			//Check Right
+			for (int offset = x + 1; offset < row; ++offset)
+			{ 
+				currentDist += 1; 
+				if (treeGrid[y][offset] >= treeGrid[y][x])
+				{
+					break;
+				}
+			} 
+			totalDist *= currentDist;
+			currentDist = 0;
+
+			//Check up
+			for (int offset = y - 1; offset >= 0; --offset) 
+			{ 
+				currentDist += 1; 
+				if (treeGrid[offset][x] >= treeGrid[y][x]) 
+				{ 
+					break; 
+				}
+			} 
+			totalDist *= currentDist;
+			currentDist = 0;
+			
+			//Check Down
+			for (int offset = y + 1; offset < col; ++offset) 
+			{ 
+				currentDist += 1; 
+				if (treeGrid[offset][x] >= treeGrid[y][x]) 
+				{ 
+					break; 
+				}
+			} 
+			totalDist *= currentDist; 
+			currentDist = 0;
+			
+			//Check if total exceeds current viewDist
+			if (totalDist > viewDist) 
+			{ 
+				viewDist = totalDist; 
+			}
+		}
+	}
+
+	std::cout << "Solution 2: " << viewDist << std::endl;
 
 	return 0;
 }
