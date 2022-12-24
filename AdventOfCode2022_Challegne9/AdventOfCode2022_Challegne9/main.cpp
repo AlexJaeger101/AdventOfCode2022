@@ -2,7 +2,8 @@
 #include <fstream>
 #include <string>
 #include <vector>
-#include <set>
+#include <unordered_set>
+#include <array>
 
 struct Motion
 {
@@ -14,6 +15,21 @@ struct Position
 {
 	int mX;
 	int mY;
+
+	Position operator - (const Position& other) const
+	{
+		Position result = { mX - other.mX, mY - other.mY };
+	}
+};
+
+struct Hash 
+{
+public:
+
+	size_t operator()(const Position pos) const 
+	{
+		return std::hash<uint32_t>()(pos.mX) ^ std::hash<uint32_t>()(pos.mY);
+	}
 };
 
 Motion StringToMotion(std::string s);
@@ -21,8 +37,6 @@ Motion StringToMotion(std::string s);
 int main()
 {
 	std::vector<Motion> motionList;
-	Position head = { 0, 0 };
-	Position tail = { 0, 0 };
 
 	//Get input from text file
 	std::fstream adventInputFile;
@@ -42,9 +56,10 @@ int main()
 		std::cout << "ERROR: File failed to open\n";
 	}
 
-	//Challenge 1
-	std::set<Position> visitedPosition;
-	visitedPosition.insert(tail);
+	//Solving Both Challenges at once!
+	std::unordered_set<Position, Hash> visitedPosPart1;	//Keeping track of visited pos for part 1
+	std::unordered_set<Position, Hash> visitedPosPart2;	//Keeping track of visited pos for part 2
+	std::array<Position, 10> knotArray;
 
 	for (Motion currentMotion : motionList)
 	{
@@ -56,22 +71,22 @@ int main()
 			{
 			case 'U':	// Move Up
 
-				head = { head.mX, head.mY + 1 };
+				++knotArray[0].mY;
 				break;
 
 			case 'D':	// Move Down
 
-				head = { head.mX, head.mY - 1 };
+				--knotArray[0].mY;
 				break;
 
 			case 'L':	// Move Left
 
-				head = { head.mX - 1, head.mY };
+				--knotArray[0].mX;
 				break;
 
 			case 'R':	// Move Right
 
-				head = { head.mX + 1, head.mY };
+				++knotArray[0].mX;
 				break;
 
 			default:
@@ -82,32 +97,26 @@ int main()
 			}
 
 			//Update tail position
-			int distX = head.mX - tail.mX;
-			int distY = head.mY - tail.mY;
-			if (abs(distX) < 2 && abs(distY < 2))
+			for (int i = 1; i < knotArray.size(); ++i) 
 			{
+				Position& head = knotArray[i - 1];
+				Position& tail = knotArray[i];
+				Position diff = head - tail;
 
-			}
-			else if (head.mX == tail.mX) 
-			{ 
-				tail.mY += distY / 2;
-			}
-			else if (head.mY == tail.mY) 
-			{ 
-				tail.mX += distX / 2;
-			}
-			else
-			{
-				tail.mX += distX < 0 ? -1 : 1;
-				tail.mY += distY < 0 ? -1 : 1;
+				if (abs(diff.mX) == 2 || abs(diff.mX) == 2) 
+				{
+					knotArray[i].mX += ((diff.mX > 0) - (diff.mX < 0));
+					knotArray[i].mY += ((diff.mY > 0) - (diff.mY < 0));
+				}
 			}
 
-
-			visitedPosition.insert(tail);
+			visitedPosPart1.insert(knotArray[1]);
+			visitedPosPart2.insert(knotArray[knotArray.size() - 1]);
 		}
 	}
 
-	std::cout << "Solution 1: " << visitedPosition.size() << std::endl;
+	std::cout << "Solution 1: " << visitedPosPart1.size() << std::endl;
+	std::cout << "Solution 2: " << visitedPosPart2.size() << std::endl;
 
 	return 0;
 }
@@ -117,7 +126,7 @@ Motion StringToMotion(std::string s)
 	Motion newMotion;
 
 	newMotion.mDir = s[0];
-	newMotion.mDist = int(s[2]) - 48;
+	newMotion.mDist = std::stoi(s.substr(s[2]));
 
 	return newMotion;
 }
