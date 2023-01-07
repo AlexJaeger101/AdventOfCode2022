@@ -16,9 +16,9 @@ struct Position
 	int mX;
 	int mY;
 
-	Position operator - (const Position& other) const
+	bool operator == (const Position& other) const
 	{
-		Position result = { mX - other.mX, mY - other.mY };
+		return mX == other.mX && mY == other.mY;
 	}
 };
 
@@ -101,9 +101,12 @@ int main()
 			{
 				Position& head = knotArray[i - 1];
 				Position& tail = knotArray[i];
-				Position diff = head - tail;
 
-				if (abs(diff.mX) == 2 || abs(diff.mX) == 2) 
+				Position diff;
+				diff.mX = head.mX - tail.mX;
+				diff.mY = head.mY - tail.mY;
+
+				if (abs(diff.mX) == 2 || abs(diff.mY) == 2) 
 				{
 					knotArray[i].mX += ((diff.mX > 0) - (diff.mX < 0));
 					knotArray[i].mY += ((diff.mY > 0) - (diff.mY < 0));
@@ -126,7 +129,7 @@ Motion StringToMotion(std::string s)
 	Motion newMotion;
 
 	newMotion.mDir = s[0];
-	newMotion.mDist = std::stoi(s.substr(s[2]));
+	newMotion.mDist = std::stoi(s.substr(2));
 
 	return newMotion;
 }
